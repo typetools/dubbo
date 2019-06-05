@@ -21,19 +21,24 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
+import org.checkerframework.checker.index.qual.IndexFor;
+import org.checkerframework.checker.index.qual.IndexOrHigh;
+import org.checkerframework.checker.index.qual.LTLengthOf;
+import org.checkerframework.checker.index.qual.NonNegative;
+
 /**
  * UnsafeByteArrayOutputStream.
  */
 public class UnsafeByteArrayOutputStream extends OutputStream {
     protected byte[] mBuffer;
 
-    protected int mCount;
+    protected @IndexFor("this.mBuffer") int mCount;
 
     public UnsafeByteArrayOutputStream() {
         this(32);
     }
 
-    public UnsafeByteArrayOutputStream(int size) {
+    public UnsafeByteArrayOutputStream(@NonNegative int size) {
         if (size < 0) {
             throw new IllegalArgumentException("Negative initial size: " + size);
         }
@@ -51,7 +56,7 @@ public class UnsafeByteArrayOutputStream extends OutputStream {
     }
 
     @Override
-    public void write(byte[] b, int off, int len) {
+    public void write(byte[] b, @IndexOrHigh("#1") int off, @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int len) {
         if ((off < 0) || (off > b.length) || (len < 0) || ((off + len) > b.length) || ((off + len) < 0)) {
             throw new IndexOutOfBoundsException();
         }

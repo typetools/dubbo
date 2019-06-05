@@ -19,6 +19,10 @@ package org.apache.dubbo.common.io;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.checkerframework.checker.index.qual.IndexOrHigh;
+import org.checkerframework.checker.index.qual.LTLengthOf;
+import org.checkerframework.checker.index.qual.NonNegative;
+
 /**
  * Thread-unsafe StringWriter.
  */
@@ -29,7 +33,7 @@ public class UnsafeStringWriter extends Writer {
         lock = mBuffer = new StringBuilder();
     }
 
-    public UnsafeStringWriter(int size) {
+    public UnsafeStringWriter(@NonNegative int size) {
         if (size < 0) {
             throw new IllegalArgumentException("Negative buffer size");
         }
@@ -48,7 +52,7 @@ public class UnsafeStringWriter extends Writer {
     }
 
     @Override
-    public void write(char[] cs, int off, int len) throws IOException {
+    public void write(char[] cs, @IndexOrHigh("#1") int off, @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int len) throws IOException {
         if ((off < 0) || (off > cs.length) || (len < 0) ||
                 ((off + len) > cs.length) || ((off + len) < 0)) {
             throw new IndexOutOfBoundsException();
@@ -65,7 +69,7 @@ public class UnsafeStringWriter extends Writer {
     }
 
     @Override
-    public void write(String str, int off, int len) {
+    public void write(String str, @IndexOrHigh("#1") int off, @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int len) {
         mBuffer.append(str.substring(off, off + len));
     }
 

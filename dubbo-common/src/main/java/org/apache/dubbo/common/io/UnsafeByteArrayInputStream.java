@@ -19,13 +19,21 @@ package org.apache.dubbo.common.io;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.checkerframework.checker.index.qual.GTENegativeOne;
+import org.checkerframework.checker.index.qual.IndexFor;
+import org.checkerframework.checker.index.qual.IndexOrHigh;
+import org.checkerframework.checker.index.qual.LTEqLengthOf;
+import org.checkerframework.checker.index.qual.LTLengthOf;
+import org.checkerframework.checker.index.qual.NonNegative;
+
 /**
  * UnsafeByteArrayInputStream.
  */
 public class UnsafeByteArrayInputStream extends InputStream {
     protected byte[] mData;
 
-    protected int mPosition, mLimit, mMark = 0;
+    protected @IndexFor("this.mData") int mPosition, mMark = 0;
+    protected @IndexOrHigh("this.mData") int mLimit = 0;
 
     public UnsafeByteArrayInputStream(byte[] buf) {
         this(buf, 0, buf.length);
@@ -42,12 +50,12 @@ public class UnsafeByteArrayInputStream extends InputStream {
     }
 
     @Override
-    public int read() {
+    public @GTENegativeOne int read() {
         return (mPosition < mLimit) ? (mData[mPosition++] & 0xff) : -1;
     }
 
     @Override
-    public int read(byte[] b, int off, int len) {
+    public @GTENegativeOne @LTEqLengthOf("#1") int read(byte[] b, @IndexOrHigh("#1") int off, @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int len) {
         if (b == null) {
             throw new NullPointerException();
         }
@@ -69,7 +77,7 @@ public class UnsafeByteArrayInputStream extends InputStream {
     }
 
     @Override
-    public long skip(long len) {
+    public @NonNegative long skip(long len) {
         if (mPosition + len > mLimit) {
             len = mLimit - mPosition;
         }
@@ -81,7 +89,7 @@ public class UnsafeByteArrayInputStream extends InputStream {
     }
 
     @Override
-    public int available() {
+    public @NonNegative int available() {
         return mLimit - mPosition;
     }
 

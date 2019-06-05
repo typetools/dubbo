@@ -19,6 +19,12 @@ package org.apache.dubbo.common.io;
 import java.io.IOException;
 import java.io.Reader;
 
+import org.checkerframework.checker.index.qual.GTENegativeOne;
+import org.checkerframework.checker.index.qual.IndexOrHigh;
+import org.checkerframework.checker.index.qual.LTEqLengthOf;
+import org.checkerframework.checker.index.qual.LTLengthOf;
+import org.checkerframework.checker.index.qual.NonNegative;
+
 /**
  * Thread-unsafe StringReader.
  */
@@ -34,7 +40,7 @@ public class UnsafeStringReader extends Reader {
     }
 
     @Override
-    public int read() throws IOException {
+    public @GTENegativeOne int read() throws IOException {
         ensureOpen();
         if (mPosition >= mLimit) {
             return -1;
@@ -44,7 +50,7 @@ public class UnsafeStringReader extends Reader {
     }
 
     @Override
-    public int read(char[] cs, int off, int len) throws IOException {
+    public @GTENegativeOne @LTEqLengthOf("#1") int read(char[] cs, @IndexOrHigh("#1") int off, @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int len) throws IOException {
         ensureOpen();
         if ((off < 0) || (off > cs.length) || (len < 0) ||
                 ((off + len) > cs.length) || ((off + len) < 0)) {
@@ -90,7 +96,7 @@ public class UnsafeStringReader extends Reader {
     }
 
     @Override
-    public void mark(int readAheadLimit) throws IOException {
+    public void mark(@NonNegative int readAheadLimit) throws IOException {
         if (readAheadLimit < 0) {
             throw new IllegalArgumentException("Read-ahead limit < 0");
         }
