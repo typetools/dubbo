@@ -77,5 +77,69 @@
             <groupId>de.ruedigermoeller</groupId>
             <artifactId>fst</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker</artifactId>
+            <version>2.8.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>jdk8</artifactId>
+            <version>2.8.1</version>
+            <scope>system</scope>
+            <systemPath>/home/maxi/checker-framework/checker/dist/jdk8.jar</systemPath>
+        </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.3</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <compilerArguments>
+                        <Xmaxerrs>10000</Xmaxerrs>
+                        <Xmaxwarns>10000</Xmaxwarns>
+                    </compilerArguments>
+                    <annotationProcessors>
+                        <annotationProcessor>${checkerframework.checkers}</annotationProcessor>
+                    </annotationProcessors>
+                    <compilerArgs>
+                        <arg>-Xbootclasspath/p:${annotatedJdk}</arg>
+                        <arg>${addtionalargs}</arg>
+                        <arg>${checkerframework.extraargs}</arg>
+                        <arg>${checkerframework.extraargs2}</arg>
+                        <arg>-AsuppressWarnings=${checkerframework.suppress}</arg>
+                        <arg>-AuseDefaultsForUncheckedCode=source,bytecode</arg>
+                        <arg>-Awarns</arg>
+                        <arg>-AprintErrorStack</arg>
+                    </compilerArgs>
+                </configuration>
+                <executions>
+                    <!-- Runs the Index Checker on selected packages. -->
+                    <!-- Because Index Checker warnings are suppressed during regular compilation (when all
+                         files are compiled), this additional phase runs the Index Checker on packages that
+                         are already annotated, to ensure they type-check without warnings. -->
+                    <execution>
+                        <id>check-index</id>
+                        <phase>${check.index.phase}</phase>
+                        <goals><goal>compile</goal></goals>
+                        <configuration>
+                            <annotationProcessors>
+                                <annotationProcessor>org.checkerframework.checker.index.IndexChecker</annotationProcessor>
+                            </annotationProcessors>
+                            <compilerArgs>
+                                <arg>-Xbootclasspath/p:${annotatedJdk}</arg>
+                                <arg>${index.only.arg}</arg>
+                                <arg>-AprintErrorStack</arg>
+                                <arg>-proc:only</arg>
+                                <arg>-AonlyDefs=^org\.apache\.dubbo\.io\.</arg>
+                            </compilerArgs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
