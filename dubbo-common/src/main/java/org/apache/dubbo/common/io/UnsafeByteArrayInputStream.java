@@ -116,7 +116,7 @@ public class UnsafeByteArrayInputStream extends InputStream {
         return mPosition;
     }
 
-    public void position(int newPosition) {
+    public void position(@IndexFor("this.mData") int newPosition) {
         mPosition = newPosition;
     }
 

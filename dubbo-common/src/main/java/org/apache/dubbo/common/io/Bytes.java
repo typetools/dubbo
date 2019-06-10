@@ -411,7 +411,7 @@ public class Bytes {
         }
 
         byte b;
-        int r = off, w = 0; // I will have to split these 2 declarations because 'r' and 'w' can't have the same type
+        int r = off, w = 0;
         char[] cs = new char[len * 2];
         for (int i = 0; i < len; i++) {
             b = bs[r++];
@@ -899,7 +899,7 @@ public class Bytes {
         return ret;
     }
 
-    private static byte[] getMD5(InputStream is, int bs) throws IOException {
+    private static byte[] getMD5(InputStream is, @NonNegative int bs) throws IOException {
         MessageDigest md = getMessageDigest();
         byte[] buf = new byte[bs];
         while (is.available() > 0) {

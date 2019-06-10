@@ -112,8 +112,6 @@
                         <arg>-AprintErrorStack</arg>
                     </compilerArgs>
                 </configuration>
-                <executions>
-                </executions>
             </plugin>
         </plugins>
     </build>
