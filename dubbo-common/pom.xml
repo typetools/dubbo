@@ -106,10 +106,9 @@
                         <annotationProcessor>org.checkerframework.checker.index.IndexChecker</annotationProcessor>
                     </annotationProcessors>
                     <compilerArgs>
-                        <arg>-Xbootclasspath/p:"/home/maxi/checker-framework/checker/dist/jdk8.jar"</arg>
-                        <arg>-AuseDefaultsForUncheckedCode=source,bytecode</arg>
-                        <arg>-Awarns</arg>
+                        <arg>-Xbootclasspath/p:/home/maxi/checker-framework/checker/dist/jdk8.jar</arg>
                         <arg>-AprintErrorStack</arg>
+                        <arg>-AonlyDefs=^org\.apache\.dubbo\.common\.io\.UnsafeByteArrayOutputStream</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>

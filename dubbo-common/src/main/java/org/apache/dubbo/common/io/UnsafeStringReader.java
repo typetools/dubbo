@@ -31,7 +31,8 @@ import org.checkerframework.checker.index.qual.NonNegative;
 public class UnsafeStringReader extends Reader {
     private String mString;
 
-    private int mPosition, mLimit, mMark;
+    private int mLimit;
+    private @IndexOrHigh("this.mString") int mPosition, mMark;
 
     public UnsafeStringReader(String str) {
         mString = str;
@@ -40,6 +41,8 @@ public class UnsafeStringReader extends Reader {
     }
 
     @Override
+    @SuppressWarnings({"return.type.incompatible", "argument.type.incompatible"}) // A char is always greater than 0 and it has been previously verified
+    // that mPosition is less than the length of mString
     public @GTENegativeOne int read() throws IOException {
         ensureOpen();
         if (mPosition >= mLimit) {
@@ -72,7 +75,7 @@ public class UnsafeStringReader extends Reader {
     }
 
     @Override
-    public long skip(long ns) throws IOException {
+    public @NonNegative long skip(long ns) throws IOException {
         ensureOpen();
         if (mPosition >= mLimit) {
             return 0;
