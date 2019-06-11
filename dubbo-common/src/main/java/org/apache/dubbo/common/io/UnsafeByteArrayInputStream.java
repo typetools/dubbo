@@ -32,18 +32,18 @@ import org.checkerframework.checker.index.qual.NonNegative;
 public class UnsafeByteArrayInputStream extends InputStream {
     protected byte[] mData;
 
-    protected @IndexFor("this.mData") int mPosition, mMark = 0;
-    protected @IndexOrHigh("this.mData") int mLimit = 0;
+    protected @IndexOrHigh("this.mData") int mPosition, mMark,  mLimit = 0;
 
     public UnsafeByteArrayInputStream(byte[] buf) {
         this(buf, 0, buf.length);
     }
 
-    public UnsafeByteArrayInputStream(byte[] buf, int offset) {
+    @SuppressWarnings("argument.type.incompatible") // The length of the array is always greater than the index used to access it.
+    public UnsafeByteArrayInputStream(byte[] buf, @IndexOrHigh("#1") int offset) {
         this(buf, offset, buf.length - offset);
     }
 
-    public UnsafeByteArrayInputStream(byte[] buf, int offset, int length) {
+    public UnsafeByteArrayInputStream(byte[] buf, @IndexOrHigh("#1") int offset, @NonNegative int length) {
         mData = buf;
         mPosition = mMark = offset;
         mLimit = Math.min(offset + length, buf.length);
@@ -55,6 +55,11 @@ public class UnsafeByteArrayInputStream extends InputStream {
     }
 
     @Override
+    @SuppressWarnings({"assignment.type.incompatible", "argument.type.incompatible", "return.type.incompatible"}) /*
+    #1. mLimit is greater than mPosition and after the assignment the value can only decrease, so it stays valid.
+    #2. The call is safe because len has been verified before.
+    #3. The return type is safe because len has been verified.
+    */
     public @GTENegativeOne @LTEqLengthOf("#1") int read(byte[] b, @IndexOrHigh("#1") int off, @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int len) {
         if (b == null) {
             throw new NullPointerException();
@@ -66,14 +71,14 @@ public class UnsafeByteArrayInputStream extends InputStream {
             return -1;
         }
         if (mPosition + len > mLimit) {
-            len = mLimit - mPosition;
+            len = mLimit - mPosition; // #1
         }
         if (len <= 0) {
             return 0;
         }
-        System.arraycopy(mData, mPosition, b, off, len);
+        System.arraycopy(mData, mPosition, b, off, len); // #2
         mPosition += len;
-        return len;
+        return len; // #3
     }
 
     @Override
@@ -89,6 +94,7 @@ public class UnsafeByteArrayInputStream extends InputStream {
     }
 
     @Override
+    @SuppressWarnings("return.type.incompatible") // mPosition is always lower than mLimit
     public @NonNegative int available() {
         return mLimit - mPosition;
     }

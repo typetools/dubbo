@@ -31,8 +31,7 @@ import org.checkerframework.checker.index.qual.NonNegative;
 public class UnsafeStringReader extends Reader {
     private String mString;
 
-    private int mLimit;
-    private @IndexOrHigh("this.mString") int mPosition, mMark;
+    private @IndexOrHigh("this.mString") int mPosition,mLimit, mMark;
 
     public UnsafeStringReader(String str) {
         mString = str;
@@ -41,8 +40,8 @@ public class UnsafeStringReader extends Reader {
     }
 
     @Override
-    @SuppressWarnings({"return.type.incompatible", "argument.type.incompatible"}) // A char is always greater than 0 and it has been previously verified
-    // that mPosition is less than the length of mString
+    @SuppressWarnings({"return.type.incompatible", "argument.type.incompatible", "compound.assignment.type.incompatible"})
+    // A char is always greater than 0 and it has been previously verified that mPosition is less than the length of mString
     public @GTENegativeOne int read() throws IOException {
         ensureOpen();
         if (mPosition >= mLimit) {
@@ -53,6 +52,10 @@ public class UnsafeStringReader extends Reader {
     }
 
     @Override
+    @SuppressWarnings({"argument.type.incompatible", "compound.assignment.type.incompatible", "return.type.incompatible"}) /*
+    #1 and #2. mPosition + n is at most mLimit, which is a valid index
+    #3. Both mLimit - mPosition and len have been verified, so the returned variable is correct
+    */
     public @GTENegativeOne @LTEqLengthOf("#1") int read(char[] cs, @IndexOrHigh("#1") int off, @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int len) throws IOException {
         ensureOpen();
         if ((off < 0) || (off > cs.length) || (len < 0) ||
@@ -69,12 +72,13 @@ public class UnsafeStringReader extends Reader {
         }
 
         int n = Math.min(mLimit - mPosition, len);
-        mString.getChars(mPosition, mPosition + n, cs, off);
-        mPosition += n;
-        return n;
+        mString.getChars(mPosition, mPosition + n, cs, off); // #1
+        mPosition += n; // #2
+        return n; // #3
     }
 
     @Override
+    @SuppressWarnings("compound.assignment.type.incompatible") // n is valid because it was previously verified
     public @NonNegative long skip(long ns) throws IOException {
         ensureOpen();
         if (mPosition >= mLimit) {
