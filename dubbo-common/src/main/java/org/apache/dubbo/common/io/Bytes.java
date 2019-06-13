@@ -399,6 +399,7 @@ public class Bytes {
      * @param len length.
      * @return hex string.
      */
+    @SuppressWarnings("array.access.unsafe") // The for loop is executed len times. off + len has been verified and cs has length of len * 2
     public static String bytes2hex(byte[] bs, @IndexOrHigh("#1") int off, @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int len) {
         if (off < 0) {
             throw new IndexOutOfBoundsException("bytes2hex: offset < 0, offset is " + off);
@@ -439,6 +440,9 @@ public class Bytes {
      * @param len length.
      * @return byte array.
      */
+    @SuppressWarnings({"argument.type.incompatible", "array.access.unsafe.high"}) /*
+    #1. The loop stops at num steps, which is the length of b. off + len has been previously verified, so accessing str with r is safe.
+    */
     public static byte[] hex2bytes(final String str, final @IndexOrHigh("#1") int off, @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int len) {
         if ((len & 1) == 1) {
             throw new IllegalArgumentException("hex2bytes: ( len & 1 ) == 1.");
@@ -457,7 +461,7 @@ public class Bytes {
         int num = len / 2, r = off, w = 0;
         byte[] b = new byte[num];
         for (int i = 0; i < num; i++) {
-            b[w++] = (byte) (hex(str.charAt(r++)) << 4 | hex(str.charAt(r++)));
+            b[w++] = (byte) (hex(str.charAt(r++)) << 4 | hex(str.charAt(r++))); // #1
         }
         return b;
     }
@@ -500,7 +504,7 @@ public class Bytes {
      * @param code base64 code string(0-63 is base64 char,64 is pad char).
      * @return base64 string.
      */
-    public static String bytes2base64(byte[] b, @IndexOrHigh("1") int offset, @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int length, @MinLen(64) String code) {
+    public static String bytes2base64(byte[] b, @IndexOrHigh("#1") int offset, @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int length, @MinLen(64) String code) {
         if (code.length() < 64) {
             throw new IllegalArgumentException("Base64 code length < 64.");
         }
@@ -528,6 +532,11 @@ public class Bytes {
      * @param code base64 code(0-63 is base64 char,64 is pad char).
      * @return base64 string.
      */
+    @SuppressWarnings("array.access.unsafe") /*
+    #1 - #5. The loop stops at num steps, which is len / 3 and bigger than cs.length / 4. Every index used to access code is smaller than 64.
+    #6 - #15. If rem is 1 or 2, then cs and bs are larger, respectively. Every index used to access code is smaller than 64. If pad is true, then
+    it is safe to access it with an index of 64 and cs is larger as well.
+    */
     public static String bytes2base64(final byte[] bs, final @IndexOrHigh("#1") int off, final @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int len, final char @MinLen(64) [] code) {
         if (off < 0) {
             throw new IndexOutOfBoundsException("bytes2base64: offset < 0, offset is " + off);
@@ -548,29 +557,29 @@ public class Bytes {
         char[] cs = new char[num * 4 + (rem == 0 ? 0 : pad ? 4 : rem + 1)];
 
         for (int i = 0; i < num; i++) {
-            int b1 = bs[r++] & MASK8, b2 = bs[r++] & MASK8, b3 = bs[r++] & MASK8;
+            int b1 = bs[r++] & MASK8, b2 = bs[r++] & MASK8, b3 = bs[r++] & MASK8; // #1
 
-            cs[w++] = code[b1 >> 2];
-            cs[w++] = code[(b1 << 4) & MASK6 | (b2 >> 4)];
-            cs[w++] = code[(b2 << 2) & MASK6 | (b3 >> 6)];
-            cs[w++] = code[b3 & MASK6];
+            cs[w++] = code[b1 >> 2]; // #2
+            cs[w++] = code[(b1 << 4) & MASK6 | (b2 >> 4)]; // #3
+            cs[w++] = code[(b2 << 2) & MASK6 | (b3 >> 6)]; // #4
+            cs[w++] = code[b3 & MASK6]; // #5
         }
 
         if (rem == 1) {
-            int b1 = bs[r++] & MASK8;
-            cs[w++] = code[b1 >> 2];
-            cs[w++] = code[(b1 << 4) & MASK6];
+            int b1 = bs[r++] & MASK8; // #6
+            cs[w++] = code[b1 >> 2]; // #7
+            cs[w++] = code[(b1 << 4) & MASK6]; // #8
             if (pad) {
-                cs[w++] = code[64];
-                cs[w++] = code[64];
+                cs[w++] = code[64]; // #9
+                cs[w++] = code[64]; // #10
             }
         } else if (rem == 2) {
-            int b1 = bs[r++] & MASK8, b2 = bs[r++] & MASK8;
-            cs[w++] = code[b1 >> 2];
-            cs[w++] = code[(b1 << 4) & MASK6 | (b2 >> 4)];
-            cs[w++] = code[(b2 << 2) & MASK6];
+            int b1 = bs[r++] & MASK8, b2 = bs[r++] & MASK8; // #11
+            cs[w++] = code[b1 >> 2]; // #12
+            cs[w++] = code[(b1 << 4) & MASK6 | (b2 >> 4)]; // #13
+            cs[w++] = code[(b2 << 2) & MASK6]; // #14
             if (pad) {
-                cs[w++] = code[64];
+                cs[w++] = code[64]; // #15
             }
         }
         return new String(cs);
@@ -618,6 +627,13 @@ public class Bytes {
      * @param code base64 code(0-63 is base64 char,64 is pad char).
      * @return byte array.
      */
+    @SuppressWarnings({"array.access.unsafe", "argument.type.incompatible", "array.length.negative"}) /*
+    #1.
+    #2.
+    #3.
+    #4 - #8. The loop stops at num steps, which is len / 4 and size / 3.
+    #9 - #13. If rem is 2 or 3, then str has 2 or 3 more spaces, respectively.
+    */
     public static byte[] base642bytes(final String str, final @IndexOrHigh("#1") int off, final @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int len, final @MinLen(64) String code) {
         if (off < 0) {
             throw new IndexOutOfBoundsException("base642bytes: offset < 0, offset is " + off);
@@ -645,11 +661,11 @@ public class Bytes {
             }
 
             char pc = code.charAt(64);
-            if (str.charAt(off + len - 2) == pc) {
+            if (str.charAt(off + len - 2) == pc) { // #1
                 size -= 2;
                 --num;
                 rem = 2;
-            } else if (str.charAt(off + len - 1) == pc) {
+            } else if (str.charAt(off + len - 1) == pc) { // #2
                 size--;
                 --num;
                 rem = 3;
@@ -663,25 +679,25 @@ public class Bytes {
         }
 
         int r = off, w = 0;
-        byte[] b = new byte[size], t = decodeTable(code);
+        byte[] b = new byte[size], t = decodeTable(code); // #3
         for (int i = 0; i < num; i++) {
-            int c1 = t[str.charAt(r++)], c2 = t[str.charAt(r++)];
-            int c3 = t[str.charAt(r++)], c4 = t[str.charAt(r++)];
+            int c1 = t[str.charAt(r++)], c2 = t[str.charAt(r++)]; // #4
+            int c3 = t[str.charAt(r++)], c4 = t[str.charAt(r++)]; // #5
 
-            b[w++] = (byte) ((c1 << 2) | (c2 >> 4));
-            b[w++] = (byte) ((c2 << 4) | (c3 >> 2));
-            b[w++] = (byte) ((c3 << 6) | c4);
+            b[w++] = (byte) ((c1 << 2) | (c2 >> 4)); // #6
+            b[w++] = (byte) ((c2 << 4) | (c3 >> 2)); // #7
+            b[w++] = (byte) ((c3 << 6) | c4); // #8
         }
 
         if (rem == 2) {
-            int c1 = t[str.charAt(r++)], c2 = t[str.charAt(r++)];
+            int c1 = t[str.charAt(r++)], c2 = t[str.charAt(r++)]; // #9
 
-            b[w++] = (byte) ((c1 << 2) | (c2 >> 4));
+            b[w++] = (byte) ((c1 << 2) | (c2 >> 4)); // #10
         } else if (rem == 3) {
-            int c1 = t[str.charAt(r++)], c2 = t[str.charAt(r++)], c3 = t[str.charAt(r++)];
+            int c1 = t[str.charAt(r++)], c2 = t[str.charAt(r++)], c3 = t[str.charAt(r++)]; // #11
 
-            b[w++] = (byte) ((c1 << 2) | (c2 >> 4));
-            b[w++] = (byte) ((c2 << 4) | (c3 >> 2));
+            b[w++] = (byte) ((c1 << 2) | (c2 >> 4)); // #12
+            b[w++] = (byte) ((c2 << 4) | (c3 >> 2)); // #13
         }
         return b;
     }
@@ -706,6 +722,13 @@ public class Bytes {
      * @param code base64 code(0-63 is base64 char,64 is pad char).
      * @return byte array.
      */
+    @SuppressWarnings({"array.access.unsafe", "argument.type.incompatible", "array.length.negative"}) /*
+    #1.
+    #2.
+    #3.
+    #4 - #8. The loop stops at num steps, which is len / 4 and size / 3.
+    #9 - #13. If rem is 2 or 3, then str has 2 or 3 more spaces, respectively.
+    */
     public static byte[] base642bytes(final String str, final @IndexOrHigh("#1") int off, final @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int len, final char @MinLen(64) [] code) {
         if (off < 0) {
             throw new IndexOutOfBoundsException("base642bytes: offset < 0, offset is " + off);
@@ -733,9 +756,9 @@ public class Bytes {
             }
 
             char pc = code[64];
-            if (str.charAt(off + len - 2) == pc) {
+            if (str.charAt(off + len - 2) == pc) { // #1
                 size -= 2;
-            } else if (str.charAt(off + len - 1) == pc) {
+            } else if (str.charAt(off + len - 1) == pc) { // #2
                 size--;
             }
         } else {
@@ -747,25 +770,25 @@ public class Bytes {
         }
 
         int r = off, w = 0;
-        byte[] b = new byte[size];
+        byte[] b = new byte[size]; // #3
         for (int i = 0; i < num; i++) {
-            int c1 = indexOf(code, str.charAt(r++)), c2 = indexOf(code, str.charAt(r++));
-            int c3 = indexOf(code, str.charAt(r++)), c4 = indexOf(code, str.charAt(r++));
+            int c1 = indexOf(code, str.charAt(r++)), c2 = indexOf(code, str.charAt(r++)); // #4
+            int c3 = indexOf(code, str.charAt(r++)), c4 = indexOf(code, str.charAt(r++)); // #5
 
-            b[w++] = (byte) ((c1 << 2) | (c2 >> 4));
-            b[w++] = (byte) ((c2 << 4) | (c3 >> 2));
-            b[w++] = (byte) ((c3 << 6) | c4);
+            b[w++] = (byte) ((c1 << 2) | (c2 >> 4)); // #6
+            b[w++] = (byte) ((c2 << 4) | (c3 >> 2)); // #7
+            b[w++] = (byte) ((c3 << 6) | c4); // #8
         }
 
         if (rem == 2) {
-            int c1 = indexOf(code, str.charAt(r++)), c2 = indexOf(code, str.charAt(r++));
+            int c1 = indexOf(code, str.charAt(r++)), c2 = indexOf(code, str.charAt(r++)); // #9
 
-            b[w++] = (byte) ((c1 << 2) | (c2 >> 4));
+            b[w++] = (byte) ((c1 << 2) | (c2 >> 4)); // #10
         } else if (rem == 3) {
-            int c1 = indexOf(code, str.charAt(r++)), c2 = indexOf(code, str.charAt(r++)), c3 = indexOf(code, str.charAt(r++));
+            int c1 = indexOf(code, str.charAt(r++)), c2 = indexOf(code, str.charAt(r++)), c3 = indexOf(code, str.charAt(r++)); // #11
 
-            b[w++] = (byte) ((c1 << 2) | (c2 >> 4));
-            b[w++] = (byte) ((c2 << 4) | (c3 >> 2));
+            b[w++] = (byte) ((c1 << 2) | (c2 >> 4)); // #12
+            b[w++] = (byte) ((c2 << 4) | (c3 >> 2)); // #13
         }
         return b;
     }
@@ -878,6 +901,10 @@ public class Bytes {
         return -1;
     }
 
+    @SuppressWarnings({"array.access.unsafe", "argument.type.incompatible"}) /*
+    #1. ret has length of 128, the loop stops at position 127
+    #2. It was verified that code has at least 64 characters. The ascii value of a chr is at most 127, which is a valid index for ret
+    */
     private static byte[] decodeTable(String code) {
         int hash = code.hashCode();
         byte[] ret = DECODE_TABLE_MAP.get(hash);
@@ -889,17 +916,18 @@ public class Bytes {
             ret = new byte[128];
             for (int i = 0; i < 128; i++) // init table.
             {
-                ret[i] = -1;
+                ret[i] = -1; // #1
             }
             for (int i = 0; i < 64; i++) {
-                ret[code.charAt(i)] = (byte) i;
+                ret[code.charAt(i)] = (byte) i; // #2
             }
             DECODE_TABLE_MAP.put(hash, ret);
         }
         return ret;
     }
 
-    private static byte[] getMD5(InputStream is, @NonNegative int bs) throws IOException {
+    @SuppressWarnings({"array.length.negative", "argument.type.incompatible"}) // Preconditions are enforced by the only caller of this private method.
+    private static byte[] getMD5(InputStream is, int bs) throws IOException {
         MessageDigest md = getMessageDigest();
         byte[] buf = new byte[bs];
         while (is.available() > 0) {
