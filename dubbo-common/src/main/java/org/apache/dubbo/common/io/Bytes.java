@@ -630,7 +630,7 @@ public class Bytes {
     @SuppressWarnings({"array.access.unsafe", "argument.type.incompatible", "array.length.negative"}) /*
     #1.
     #2.
-    #3.
+    #3. size cannot be negative because num is 0 only if len < 4. size gets negative if len is 0, and the code would crash at #1 if so
     #4 - #8. The loop stops at num steps, which is len / 4 and size / 3.
     #9 - #13. If rem is 2 or 3, then str has 2 or 3 more spaces, respectively.
     */
@@ -725,7 +725,7 @@ public class Bytes {
     @SuppressWarnings({"array.access.unsafe", "argument.type.incompatible", "array.length.negative"}) /*
     #1.
     #2.
-    #3.
+    #3. size cannot be negative because num is 0 only if len < 4. size gets negative if len is 0, and the code would crash at #1 if so
     #4 - #8. The loop stops at num steps, which is len / 4 and size / 3.
     #9 - #13. If rem is 2 or 3, then str has 2 or 3 more spaces, respectively.
     */

@@ -33,7 +33,7 @@ public class StreamUtils {
             private int mPosition = 0, mMark = 0, mLimit = Math.min(limit, is.available());
 
             @Override
-            public int read() throws IOException {
+            public @GTENegativeOne int read() throws IOException {
                 if (mPosition < mLimit) {
                     mPosition++;
                     return is.read();
@@ -42,7 +42,7 @@ public class StreamUtils {
             }
 
             @Override
-            public int read(byte[] b, @IndexOrHigh("#1") int off, @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int len) throws IOException {
+            public @GTENegativeOne @LTEqLengthOf("#1") int read(byte[] b, @IndexOrHigh("#1") int off, @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int len) throws IOException {
                 if (b == null) {
                     throw new NullPointerException();
                 }
