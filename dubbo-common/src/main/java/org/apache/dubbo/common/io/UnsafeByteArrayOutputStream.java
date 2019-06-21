@@ -46,7 +46,7 @@ public class UnsafeByteArrayOutputStream extends OutputStream {
     }
 
     @Override
-    @SuppressWarnings({"array.access.unsafe", "assignment.type.incompatible"}) // If mCount becomes mBuffer.length, then the array is extended before accessing it
+    @SuppressWarnings({"index:array.access.unsafe", "index:assignment.type.incompatible"}) // If mCount becomes mBuffer.length, then the array is extended before accessing it
     public void write(int b) {
         int newcount = mCount + 1;
         if (newcount > mBuffer.length) {
@@ -57,7 +57,7 @@ public class UnsafeByteArrayOutputStream extends OutputStream {
     }
 
     @Override
-    @SuppressWarnings({"argument.type.incompatible", "assignment.type.incompatible"}) // len is valid because if mCount + len exceeds mBuffer.length, then
+    @SuppressWarnings({"index:argument.type.incompatible", "index:assignment.type.incompatible"}) // len is valid because if mCount + len exceeds mBuffer.length, then
     // the array is extended
     public void write(byte[] b, @IndexOrHigh("#1") int off, @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int len) {
         if ((off < 0) || (off > b.length) || (len < 0) || ((off + len) > b.length) || ((off + len) < 0)) {

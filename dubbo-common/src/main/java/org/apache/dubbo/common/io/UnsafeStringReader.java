@@ -31,7 +31,7 @@ import org.checkerframework.checker.index.qual.NonNegative;
 public class UnsafeStringReader extends Reader {
     private String mString;
 
-    private @IndexOrHigh("this.mString") int mPosition,mLimit, mMark;
+    private @IndexOrHigh("this.mString") int mPosition, mLimit, mMark;
 
     public UnsafeStringReader(String str) {
         mString = str;
@@ -40,8 +40,7 @@ public class UnsafeStringReader extends Reader {
     }
 
     @Override
-    @SuppressWarnings({"return.type.incompatible", "argument.type.incompatible", "compound.assignment.type.incompatible"})
-    // A char is always greater than 0 and it has been previously verified that mPosition is less than the length of mString
+    @SuppressWarnings("index:return.type.incompatible") // A char is always greater than 0
     public @GTENegativeOne int read() throws IOException {
         ensureOpen();
         if (mPosition >= mLimit) {
@@ -52,7 +51,7 @@ public class UnsafeStringReader extends Reader {
     }
 
     @Override
-    @SuppressWarnings({"argument.type.incompatible", "compound.assignment.type.incompatible", "return.type.incompatible"}) /*
+    @SuppressWarnings({"index:argument.type.incompatible", "index:compound.assignment.type.incompatible", "index:return.type.incompatible"}) /*
     #1 and #2. mPosition + n is at most mLimit, which is a valid index
     #3. Both mLimit - mPosition and len have been verified, so the returned variable is correct
     */
@@ -78,8 +77,8 @@ public class UnsafeStringReader extends Reader {
     }
 
     @Override
-    @SuppressWarnings("compound.assignment.type.incompatible") // n is valid because it was previously verified
-    public @NonNegative long skip(long ns) throws IOException {
+    @SuppressWarnings("index:compound.assignment.type.incompatible") // n is valid because it was previously verified
+    public @NonNegative long skip(@NonNegative long ns) throws IOException {
         ensureOpen();
         if (mPosition >= mLimit) {
             return 0;

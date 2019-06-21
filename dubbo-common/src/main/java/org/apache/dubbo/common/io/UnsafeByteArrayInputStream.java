@@ -32,13 +32,13 @@ import org.checkerframework.checker.index.qual.NonNegative;
 public class UnsafeByteArrayInputStream extends InputStream {
     protected byte[] mData;
 
-    protected @IndexOrHigh("this.mData") int mPosition, mMark,  mLimit = 0;
+    protected @IndexOrHigh("this.mData") int mPosition, mMark, mLimit = 0;
 
     public UnsafeByteArrayInputStream(byte[] buf) {
         this(buf, 0, buf.length);
     }
 
-    @SuppressWarnings("argument.type.incompatible") // The length of the array is always greater than the index used to access it.
+    @SuppressWarnings("index:argument.type.incompatible") // The length of the array is always greater than the index used to access it.
     public UnsafeByteArrayInputStream(byte[] buf, @IndexOrHigh("#1") int offset) {
         this(buf, offset, buf.length - offset);
     }
@@ -55,7 +55,7 @@ public class UnsafeByteArrayInputStream extends InputStream {
     }
 
     @Override
-    @SuppressWarnings({"assignment.type.incompatible", "argument.type.incompatible", "return.type.incompatible"}) /*
+    @SuppressWarnings({"index:assignment.type.incompatible", "index:argument.type.incompatible", "index:return.type.incompatible"}) /*
     #1. mLimit is greater than mPosition and after the assignment the value can only decrease, so it stays valid.
     #2. The call is safe because len has been verified before.
     #3. The return type is safe because len has been verified.
@@ -94,7 +94,7 @@ public class UnsafeByteArrayInputStream extends InputStream {
     }
 
     @Override
-    @SuppressWarnings("return.type.incompatible") // mPosition is always lower than mLimit
+    @SuppressWarnings("index:return.type.incompatible") // mPosition is always lower than mLimit
     public @NonNegative int available() {
         return mLimit - mPosition;
     }
@@ -122,7 +122,7 @@ public class UnsafeByteArrayInputStream extends InputStream {
         return mPosition;
     }
 
-    public void position(@IndexFor("this.mData") int newPosition) {
+    public void position(@IndexOrHigh("this.mData") int newPosition) {
         mPosition = newPosition;
     }
 

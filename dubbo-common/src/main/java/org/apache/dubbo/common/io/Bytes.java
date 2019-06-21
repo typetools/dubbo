@@ -399,7 +399,7 @@ public class Bytes {
      * @param len length.
      * @return hex string.
      */
-    @SuppressWarnings("array.access.unsafe") // The for loop is executed len times. off + len has been verified and cs has length of len * 2
+    @SuppressWarnings("index:array.access.unsafe") // The for loop is executed len times. off + len has been verified and cs has length of len * 2
     public static String bytes2hex(byte[] bs, @IndexOrHigh("#1") int off, @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int len) {
         if (off < 0) {
             throw new IndexOutOfBoundsException("bytes2hex: offset < 0, offset is " + off);
@@ -440,7 +440,7 @@ public class Bytes {
      * @param len length.
      * @return byte array.
      */
-    @SuppressWarnings({"argument.type.incompatible", "array.access.unsafe.high"}) /*
+    @SuppressWarnings({"index:argument.type.incompatible", "index:array.access.unsafe.high"}) /*
     #1. The loop stops at num steps, which is the length of b. off + len has been previously verified, so accessing str with r is safe.
     */
     public static byte[] hex2bytes(final String str, final @IndexOrHigh("#1") int off, @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int len) {
@@ -532,7 +532,7 @@ public class Bytes {
      * @param code base64 code(0-63 is base64 char,64 is pad char).
      * @return base64 string.
      */
-    @SuppressWarnings("array.access.unsafe") /*
+    @SuppressWarnings("index:array.access.unsafe") /*
     #1 - #5. The loop stops at num steps, which is len / 3 and bigger than cs.length / 4. Every index used to access code is smaller than 64.
     #6 - #15. If rem is 1 or 2, then cs and bs are larger, respectively. Every index used to access code is smaller than 64. If pad is true, then
     it is safe to access it with an index of 64 and cs is larger as well.
@@ -627,7 +627,7 @@ public class Bytes {
      * @param code base64 code(0-63 is base64 char,64 is pad char).
      * @return byte array.
      */
-    @SuppressWarnings({"array.access.unsafe", "argument.type.incompatible", "array.length.negative"}) /*
+    @SuppressWarnings({"index:array.access.unsafe", "index:argument.type.incompatible", "index:array.length.negative"}) /*
     #1.
     #2.
     #3. size cannot be negative because num is 0 only if len < 4. size gets negative if len is 0, and the code would crash at #1 if so
@@ -722,7 +722,7 @@ public class Bytes {
      * @param code base64 code(0-63 is base64 char,64 is pad char).
      * @return byte array.
      */
-    @SuppressWarnings({"array.access.unsafe", "argument.type.incompatible", "array.length.negative"}) /*
+    @SuppressWarnings({"index:array.access.unsafe", "index:argument.type.incompatible", "index:array.length.negative"}) /*
     #1.
     #2.
     #3. size cannot be negative because num is 0 only if len < 4. size gets negative if len is 0, and the code would crash at #1 if so
@@ -901,9 +901,9 @@ public class Bytes {
         return -1;
     }
 
-    @SuppressWarnings({"array.access.unsafe", "argument.type.incompatible"}) /*
+    @SuppressWarnings({"index:array.access.unsafe", "index:argument.type.incompatible"}) /*
     #1. ret has length of 128, the loop stops at position 127
-    #2. It was verified that code has at least 64 characters. The ascii value of a chr is at most 127, which is a valid index for ret
+    #2. It was verified that code has at least 64 characters. The ascii value of a char is at most 127, which is a valid index for ret
     */
     private static byte[] decodeTable(String code) {
         int hash = code.hashCode();
@@ -926,8 +926,8 @@ public class Bytes {
         return ret;
     }
 
-    @SuppressWarnings({"array.length.negative", "argument.type.incompatible"}) // Preconditions are enforced by the only caller of this private method.
-    private static byte[] getMD5(InputStream is, int bs) throws IOException {
+    @SuppressWarnings("index:argument.type.incompatible") // The call to read is safe because the loop stops before total exceeds bs
+    private static byte[] getMD5(InputStream is, @NonNegative int bs) throws IOException {
         MessageDigest md = getMessageDigest();
         byte[] buf = new byte[bs];
         while (is.available() > 0) {
