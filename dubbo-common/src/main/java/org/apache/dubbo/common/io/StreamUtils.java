@@ -16,6 +16,8 @@
  */
 package org.apache.dubbo.common.io;
 
+import org.checkerframework.checker.index.qual.*;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -31,7 +33,7 @@ public class StreamUtils {
             private int mPosition = 0, mMark = 0, mLimit = Math.min(limit, is.available());
 
             @Override
-            public int read() throws IOException {
+            public @GTENegativeOne int read() throws IOException {
                 if (mPosition < mLimit) {
                     mPosition++;
                     return is.read();
@@ -40,7 +42,7 @@ public class StreamUtils {
             }
 
             @Override
-            public int read(byte[] b, int off, int len) throws IOException {
+            public @GTENegativeOne @LTEqLengthOf("#1") int read(byte[] b, @IndexOrHigh("#1") int off, @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int len) throws IOException {
                 if (b == null) {
                     throw new NullPointerException();
                 }
@@ -67,7 +69,7 @@ public class StreamUtils {
             }
 
             @Override
-            public long skip(long len) throws IOException {
+            public @NonNegative long skip(long len) throws IOException {
                 if (mPosition + len > mLimit) {
                     len = mLimit - mPosition;
                 }
@@ -82,7 +84,7 @@ public class StreamUtils {
             }
 
             @Override
-            public int available() {
+            public @NonNegative int available() {
                 return mLimit - mPosition;
             }
 
@@ -92,7 +94,7 @@ public class StreamUtils {
             }
 
             @Override
-            public void mark(int readlimit) {
+            public void mark(@NonNegative int readlimit) {
                 is.mark(readlimit);
                 mMark = mPosition;
             }
@@ -110,7 +112,7 @@ public class StreamUtils {
         };
     }
 
-    public static InputStream markSupportedInputStream(final InputStream is, final int markBufferSize) {
+    public static InputStream markSupportedInputStream(final InputStream is, final @NonNegative int markBufferSize) {
         if (is.markSupported()) {
             return is;
         }
@@ -125,7 +127,7 @@ public class StreamUtils {
             private int mCount = 0;
 
             @Override
-            public int read() throws IOException {
+            public @GTENegativeOne int read() throws IOException {
                 if (!mInMarked) {
                     return is.read();
                 } else {
@@ -202,7 +204,7 @@ public class StreamUtils {
             }
 
             @Override
-            public int available() throws IOException {
+            public @NonNegative int available() throws IOException {
                 int available = is.available();
 
                 if (mInMarked && mInReset) {

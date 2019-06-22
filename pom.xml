@@ -194,6 +194,16 @@
             <version>${cglib_version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker</artifactId>
+            <version>2.8.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>jdk8</artifactId>
+            <version>2.8.1</version>
+        </dependency>
     </dependencies>
 
     <profiles>
@@ -443,7 +453,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven_compiler_version}</version>
                 <configuration>
-                    <compilerArgument>-proc:none</compilerArgument>
                     <fork>true</fork>
                     <source>${java_source_version}</source>
                     <target>${java_target_version}</target>
@@ -620,6 +629,26 @@
                     <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-maven-plugin</artifactId>
                     <version>${maven_jetty_version}</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.3</version>
+                    <configuration>
+                        <source>1.8</source>
+                        <target>1.8</target>
+                        <compilerArguments>
+                            <Xmaxerrs>10000</Xmaxerrs>
+                            <Xmaxwarns>10000</Xmaxwarns>
+                        </compilerArguments>
+                        <annotationProcessors>
+                            <annotationProcessor>org.checkerframework.checker.index.IndexChecker</annotationProcessor>
+                        </annotationProcessors>
+                        <compilerArgs>
+                            <arg>-Xbootclasspath/p:$CHECKERFRAMEWORK/checker/dist/jdk8.jar</arg>
+                            <arg>-AprintErrorStack</arg>
+                            <arg>-AonlyDefs=^org\.apache\.dubbo\.common\.io\.</arg>
+                        </compilerArgs>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>

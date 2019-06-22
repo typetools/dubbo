@@ -30,6 +30,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
+import org.checkerframework.checker.index.qual.IndexOrHigh;
+import org.checkerframework.checker.index.qual.LTLengthOf;
+import org.checkerframework.checker.index.qual.NonNegative;
+import org.checkerframework.common.value.qual.MinLen;
+
 /**
  * CodecUtils.
  */
@@ -55,7 +60,7 @@ public class Bytes {
      * @param length new length.
      * @return new byte array.
      */
-    public static byte[] copyOf(byte[] src, int length) {
+    public static byte[] copyOf(byte[] src, @NonNegative int length) {
         byte[] dest = new byte[length];
         System.arraycopy(src, 0, dest, 0, Math.min(src.length, length));
         return dest;
@@ -79,7 +84,7 @@ public class Bytes {
      * @param v value.
      * @param b byte array.
      */
-    public static void short2bytes(short v, byte[] b) {
+    public static void short2bytes(short v, byte @MinLen(2) [] b) {
         short2bytes(v, b, 0);
     }
 
@@ -89,7 +94,7 @@ public class Bytes {
      * @param v value.
      * @param b byte array.
      */
-    public static void short2bytes(short v, byte[] b, int off) {
+    public static void short2bytes(short v, byte @MinLen(2) [] b, @NonNegative @LTLengthOf(value = "#2", offset = "1") int off) {
         b[off + 1] = (byte) v;
         b[off + 0] = (byte) (v >>> 8);
     }
@@ -112,7 +117,7 @@ public class Bytes {
      * @param v value.
      * @param b byte array.
      */
-    public static void int2bytes(int v, byte[] b) {
+    public static void int2bytes(int v, byte @MinLen(4) [] b) {
         int2bytes(v, b, 0);
     }
 
@@ -123,7 +128,7 @@ public class Bytes {
      * @param b   byte array.
      * @param off array offset.
      */
-    public static void int2bytes(int v, byte[] b, int off) {
+    public static void int2bytes(int v, byte @MinLen(4) [] b, @NonNegative @LTLengthOf(value = "#2", offset = "3") int off) {
         b[off + 3] = (byte) v;
         b[off + 2] = (byte) (v >>> 8);
         b[off + 1] = (byte) (v >>> 16);
@@ -148,7 +153,7 @@ public class Bytes {
      * @param v value.
      * @param b byte array.
      */
-    public static void float2bytes(float v, byte[] b) {
+    public static void float2bytes(float v, byte @MinLen(4) [] b) {
         float2bytes(v, b, 0);
     }
 
@@ -159,7 +164,7 @@ public class Bytes {
      * @param b   byte array.
      * @param off array offset.
      */
-    public static void float2bytes(float v, byte[] b, int off) {
+    public static void float2bytes(float v, byte @MinLen(4) [] b, @NonNegative @LTLengthOf(value = "#2", offset = "3") int off) {
         int i = Float.floatToIntBits(v);
         b[off + 3] = (byte) i;
         b[off + 2] = (byte) (i >>> 8);
@@ -185,7 +190,7 @@ public class Bytes {
      * @param v value.
      * @param b byte array.
      */
-    public static void long2bytes(long v, byte[] b) {
+    public static void long2bytes(long v, byte @MinLen(8) [] b) {
         long2bytes(v, b, 0);
     }
 
@@ -196,7 +201,7 @@ public class Bytes {
      * @param b   byte array.
      * @param off array offset.
      */
-    public static void long2bytes(long v, byte[] b, int off) {
+    public static void long2bytes(long v, byte @MinLen(8) [] b, @NonNegative @LTLengthOf(value = "#2", offset = "7") int off) {
         b[off + 7] = (byte) v;
         b[off + 6] = (byte) (v >>> 8);
         b[off + 5] = (byte) (v >>> 16);
@@ -225,7 +230,7 @@ public class Bytes {
      * @param v value.
      * @param b byte array.
      */
-    public static void double2bytes(double v, byte[] b) {
+    public static void double2bytes(double v, byte @MinLen(8) [] b) {
         double2bytes(v, b, 0);
     }
 
@@ -236,7 +241,7 @@ public class Bytes {
      * @param b   byte array.
      * @param off array offset.
      */
-    public static void double2bytes(double v, byte[] b, int off) {
+    public static void double2bytes(double v, byte @MinLen(8) [] b, @NonNegative @LTLengthOf(value = "#2", offset = "7") int off) {
         long j = Double.doubleToLongBits(v);
         b[off + 7] = (byte) j;
         b[off + 6] = (byte) (j >>> 8);
@@ -254,7 +259,7 @@ public class Bytes {
      * @param b byte array.
      * @return short.
      */
-    public static short bytes2short(byte[] b) {
+    public static short bytes2short(byte @MinLen(2) [] b) {
         return bytes2short(b, 0);
     }
 
@@ -265,7 +270,7 @@ public class Bytes {
      * @param off offset.
      * @return short.
      */
-    public static short bytes2short(byte[] b, int off) {
+    public static short bytes2short(byte @MinLen(2) [] b, @NonNegative @LTLengthOf(value = "#1", offset = "1") int off) {
         return (short) (((b[off + 1] & 0xFF) << 0) +
                 ((b[off + 0]) << 8));
     }
@@ -276,7 +281,7 @@ public class Bytes {
      * @param b byte array.
      * @return int.
      */
-    public static int bytes2int(byte[] b) {
+    public static int bytes2int(byte @MinLen(4) [] b) {
         return bytes2int(b, 0);
     }
 
@@ -287,7 +292,7 @@ public class Bytes {
      * @param off offset.
      * @return int.
      */
-    public static int bytes2int(byte[] b, int off) {
+    public static int bytes2int(byte @MinLen(4) [] b, @NonNegative @LTLengthOf(value = "#1", offset = "3") int off) {
         return ((b[off + 3] & 0xFF) << 0) +
                 ((b[off + 2] & 0xFF) << 8) +
                 ((b[off + 1] & 0xFF) << 16) +
@@ -300,7 +305,7 @@ public class Bytes {
      * @param b byte array.
      * @return int.
      */
-    public static float bytes2float(byte[] b) {
+    public static float bytes2float(byte @MinLen(4) [] b) {
         return bytes2float(b, 0);
     }
 
@@ -311,7 +316,7 @@ public class Bytes {
      * @param off offset.
      * @return int.
      */
-    public static float bytes2float(byte[] b, int off) {
+    public static float bytes2float(byte @MinLen(4) [] b, @NonNegative @LTLengthOf(value = "#1", offset = "3") int off) {
         int i = ((b[off + 3] & 0xFF) << 0) +
                 ((b[off + 2] & 0xFF) << 8) +
                 ((b[off + 1] & 0xFF) << 16) +
@@ -325,7 +330,7 @@ public class Bytes {
      * @param b byte array.
      * @return long.
      */
-    public static long bytes2long(byte[] b) {
+    public static long bytes2long(byte @MinLen(8) [] b) {
         return bytes2long(b, 0);
     }
 
@@ -336,7 +341,7 @@ public class Bytes {
      * @param off offset.
      * @return long.
      */
-    public static long bytes2long(byte[] b, int off) {
+    public static long bytes2long(byte @MinLen(8) [] b, @NonNegative @LTLengthOf(value = "#1", offset = "7") int off) {
         return ((b[off + 7] & 0xFFL) << 0) +
                 ((b[off + 6] & 0xFFL) << 8) +
                 ((b[off + 5] & 0xFFL) << 16) +
@@ -353,7 +358,7 @@ public class Bytes {
      * @param b byte array.
      * @return double.
      */
-    public static double bytes2double(byte[] b) {
+    public static double bytes2double(byte @MinLen(8) [] b) {
         return bytes2double(b, 0);
     }
 
@@ -364,7 +369,7 @@ public class Bytes {
      * @param off offset.
      * @return double.
      */
-    public static double bytes2double(byte[] b, int off) {
+    public static double bytes2double(byte @MinLen(8) [] b, @NonNegative @LTLengthOf(value = "#1", offset = "7") int off) {
         long j = ((b[off + 7] & 0xFFL) << 0) +
                 ((b[off + 6] & 0xFFL) << 8) +
                 ((b[off + 5] & 0xFFL) << 16) +
@@ -394,7 +399,8 @@ public class Bytes {
      * @param len length.
      * @return hex string.
      */
-    public static String bytes2hex(byte[] bs, int off, int len) {
+    @SuppressWarnings("index:array.access.unsafe") // The for loop is executed len times. off + len has been verified and cs has length of len * 2
+    public static String bytes2hex(byte[] bs, @IndexOrHigh("#1") int off, @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int len) {
         if (off < 0) {
             throw new IndexOutOfBoundsException("bytes2hex: offset < 0, offset is " + off);
         }
@@ -434,7 +440,10 @@ public class Bytes {
      * @param len length.
      * @return byte array.
      */
-    public static byte[] hex2bytes(final String str, final int off, int len) {
+    @SuppressWarnings({"index:argument.type.incompatible", "index:array.access.unsafe.high"}) /*
+    #1. The loop stops at num steps, which is the length of b. off + len has been previously verified, so accessing str with r is safe.
+    */
+    public static byte[] hex2bytes(final String str, final @IndexOrHigh("#1") int off, @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int len) {
         if ((len & 1) == 1) {
             throw new IllegalArgumentException("hex2bytes: ( len & 1 ) == 1.");
         }
@@ -452,7 +461,7 @@ public class Bytes {
         int num = len / 2, r = off, w = 0;
         byte[] b = new byte[num];
         for (int i = 0; i < num; i++) {
-            b[w++] = (byte) (hex(str.charAt(r++)) << 4 | hex(str.charAt(r++)));
+            b[w++] = (byte) (hex(str.charAt(r++)) << 4 | hex(str.charAt(r++))); // #1
         }
         return b;
     }
@@ -473,7 +482,7 @@ public class Bytes {
      * @param b byte array.
      * @return base64 string.
      */
-    public static String bytes2base64(byte[] b, int offset, int length) {
+    public static String bytes2base64(byte[] b, @IndexOrHigh("#1") int offset, @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int length) {
         return bytes2base64(b, offset, length, BASE64);
     }
 
@@ -484,7 +493,7 @@ public class Bytes {
      * @param code base64 code string(0-63 is base64 char,64 is pad char).
      * @return base64 string.
      */
-    public static String bytes2base64(byte[] b, String code) {
+    public static String bytes2base64(byte[] b, @MinLen(64) String code) {
         return bytes2base64(b, 0, b.length, code);
     }
 
@@ -495,7 +504,7 @@ public class Bytes {
      * @param code base64 code string(0-63 is base64 char,64 is pad char).
      * @return base64 string.
      */
-    public static String bytes2base64(byte[] b, int offset, int length, String code) {
+    public static String bytes2base64(byte[] b, @IndexOrHigh("#1") int offset, @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int length, @MinLen(64) String code) {
         if (code.length() < 64) {
             throw new IllegalArgumentException("Base64 code length < 64.");
         }
@@ -510,7 +519,7 @@ public class Bytes {
      * @param code base64 code(0-63 is base64 char,64 is pad char).
      * @return base64 string.
      */
-    public static String bytes2base64(byte[] b, char[] code) {
+    public static String bytes2base64(byte[] b, char @MinLen(64) [] code) {
         return bytes2base64(b, 0, b.length, code);
     }
 
@@ -523,7 +532,12 @@ public class Bytes {
      * @param code base64 code(0-63 is base64 char,64 is pad char).
      * @return base64 string.
      */
-    public static String bytes2base64(final byte[] bs, final int off, final int len, final char[] code) {
+    @SuppressWarnings("index:array.access.unsafe") /*
+    #1 - #5. The loop stops at num steps, which is len / 3 and bigger than cs.length / 4. Every index used to access code is smaller than 64.
+    #6 - #15. If rem is 1 or 2, then cs and bs are larger, respectively. Every index used to access code is smaller than 64. If pad is true, then
+    it is safe to access it with an index of 64 and cs is larger as well.
+    */
+    public static String bytes2base64(final byte[] bs, final @IndexOrHigh("#1") int off, final @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int len, final char @MinLen(64) [] code) {
         if (off < 0) {
             throw new IndexOutOfBoundsException("bytes2base64: offset < 0, offset is " + off);
         }
@@ -543,29 +557,29 @@ public class Bytes {
         char[] cs = new char[num * 4 + (rem == 0 ? 0 : pad ? 4 : rem + 1)];
 
         for (int i = 0; i < num; i++) {
-            int b1 = bs[r++] & MASK8, b2 = bs[r++] & MASK8, b3 = bs[r++] & MASK8;
+            int b1 = bs[r++] & MASK8, b2 = bs[r++] & MASK8, b3 = bs[r++] & MASK8; // #1
 
-            cs[w++] = code[b1 >> 2];
-            cs[w++] = code[(b1 << 4) & MASK6 | (b2 >> 4)];
-            cs[w++] = code[(b2 << 2) & MASK6 | (b3 >> 6)];
-            cs[w++] = code[b3 & MASK6];
+            cs[w++] = code[b1 >> 2]; // #2
+            cs[w++] = code[(b1 << 4) & MASK6 | (b2 >> 4)]; // #3
+            cs[w++] = code[(b2 << 2) & MASK6 | (b3 >> 6)]; // #4
+            cs[w++] = code[b3 & MASK6]; // #5
         }
 
         if (rem == 1) {
-            int b1 = bs[r++] & MASK8;
-            cs[w++] = code[b1 >> 2];
-            cs[w++] = code[(b1 << 4) & MASK6];
+            int b1 = bs[r++] & MASK8; // #6
+            cs[w++] = code[b1 >> 2]; // #7
+            cs[w++] = code[(b1 << 4) & MASK6]; // #8
             if (pad) {
-                cs[w++] = code[64];
-                cs[w++] = code[64];
+                cs[w++] = code[64]; // #9
+                cs[w++] = code[64]; // #10
             }
         } else if (rem == 2) {
-            int b1 = bs[r++] & MASK8, b2 = bs[r++] & MASK8;
-            cs[w++] = code[b1 >> 2];
-            cs[w++] = code[(b1 << 4) & MASK6 | (b2 >> 4)];
-            cs[w++] = code[(b2 << 2) & MASK6];
+            int b1 = bs[r++] & MASK8, b2 = bs[r++] & MASK8; // #11
+            cs[w++] = code[b1 >> 2]; // #12
+            cs[w++] = code[(b1 << 4) & MASK6 | (b2 >> 4)]; // #13
+            cs[w++] = code[(b2 << 2) & MASK6]; // #14
             if (pad) {
-                cs[w++] = code[64];
+                cs[w++] = code[64]; // #15
             }
         }
         return new String(cs);
@@ -589,7 +603,7 @@ public class Bytes {
      * @param length length.
      * @return byte array.
      */
-    public static byte[] base642bytes(String str, int offset, int length) {
+    public static byte[] base642bytes(String str, @IndexOrHigh("#1") int offset, @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int length) {
         return base642bytes(str, offset, length, C64);
     }
 
@@ -600,7 +614,7 @@ public class Bytes {
      * @param code base64 code(0-63 is base64 char,64 is pad char).
      * @return byte array.
      */
-    public static byte[] base642bytes(String str, String code) {
+    public static byte[] base642bytes(String str, @MinLen(64) String code) {
         return base642bytes(str, 0, str.length(), code);
     }
 
@@ -613,7 +627,14 @@ public class Bytes {
      * @param code base64 code(0-63 is base64 char,64 is pad char).
      * @return byte array.
      */
-    public static byte[] base642bytes(final String str, final int off, final int len, final String code) {
+    @SuppressWarnings({"index:array.access.unsafe", "index:argument.type.incompatible", "index:array.length.negative"}) /*
+    #1.
+    #2.
+    #3. size cannot be negative because num is 0 only if len < 4. size gets negative if len is 0, and the code would crash at #1 if so
+    #4 - #8. The loop stops at num steps, which is len / 4 and size / 3.
+    #9 - #13. If rem is 2 or 3, then str has 2 or 3 more spaces, respectively.
+    */
+    public static byte[] base642bytes(final String str, final @IndexOrHigh("#1") int off, final @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int len, final @MinLen(64) String code) {
         if (off < 0) {
             throw new IndexOutOfBoundsException("base642bytes: offset < 0, offset is " + off);
         }
@@ -640,11 +661,11 @@ public class Bytes {
             }
 
             char pc = code.charAt(64);
-            if (str.charAt(off + len - 2) == pc) {
+            if (str.charAt(off + len - 2) == pc) { // #1
                 size -= 2;
                 --num;
                 rem = 2;
-            } else if (str.charAt(off + len - 1) == pc) {
+            } else if (str.charAt(off + len - 1) == pc) { // #2
                 size--;
                 --num;
                 rem = 3;
@@ -658,25 +679,25 @@ public class Bytes {
         }
 
         int r = off, w = 0;
-        byte[] b = new byte[size], t = decodeTable(code);
+        byte[] b = new byte[size], t = decodeTable(code); // #3
         for (int i = 0; i < num; i++) {
-            int c1 = t[str.charAt(r++)], c2 = t[str.charAt(r++)];
-            int c3 = t[str.charAt(r++)], c4 = t[str.charAt(r++)];
+            int c1 = t[str.charAt(r++)], c2 = t[str.charAt(r++)]; // #4
+            int c3 = t[str.charAt(r++)], c4 = t[str.charAt(r++)]; // #5
 
-            b[w++] = (byte) ((c1 << 2) | (c2 >> 4));
-            b[w++] = (byte) ((c2 << 4) | (c3 >> 2));
-            b[w++] = (byte) ((c3 << 6) | c4);
+            b[w++] = (byte) ((c1 << 2) | (c2 >> 4)); // #6
+            b[w++] = (byte) ((c2 << 4) | (c3 >> 2)); // #7
+            b[w++] = (byte) ((c3 << 6) | c4); // #8
         }
 
         if (rem == 2) {
-            int c1 = t[str.charAt(r++)], c2 = t[str.charAt(r++)];
+            int c1 = t[str.charAt(r++)], c2 = t[str.charAt(r++)]; // #9
 
-            b[w++] = (byte) ((c1 << 2) | (c2 >> 4));
+            b[w++] = (byte) ((c1 << 2) | (c2 >> 4)); // #10
         } else if (rem == 3) {
-            int c1 = t[str.charAt(r++)], c2 = t[str.charAt(r++)], c3 = t[str.charAt(r++)];
+            int c1 = t[str.charAt(r++)], c2 = t[str.charAt(r++)], c3 = t[str.charAt(r++)]; // #11
 
-            b[w++] = (byte) ((c1 << 2) | (c2 >> 4));
-            b[w++] = (byte) ((c2 << 4) | (c3 >> 2));
+            b[w++] = (byte) ((c1 << 2) | (c2 >> 4)); // #12
+            b[w++] = (byte) ((c2 << 4) | (c3 >> 2)); // #13
         }
         return b;
     }
@@ -688,7 +709,7 @@ public class Bytes {
      * @param code base64 code(0-63 is base64 char,64 is pad char).
      * @return byte array.
      */
-    public static byte[] base642bytes(String str, char[] code) {
+    public static byte[] base642bytes(String str, char @MinLen(64) [] code) {
         return base642bytes(str, 0, str.length(), code);
     }
 
@@ -701,7 +722,14 @@ public class Bytes {
      * @param code base64 code(0-63 is base64 char,64 is pad char).
      * @return byte array.
      */
-    public static byte[] base642bytes(final String str, final int off, final int len, final char[] code) {
+    @SuppressWarnings({"index:array.access.unsafe", "index:argument.type.incompatible", "index:array.length.negative"}) /*
+    #1.
+    #2.
+    #3. size cannot be negative because num is 0 only if len < 4. size gets negative if len is 0, and the code would crash at #1 if so
+    #4 - #8. The loop stops at num steps, which is len / 4 and size / 3.
+    #9 - #13. If rem is 2 or 3, then str has 2 or 3 more spaces, respectively.
+    */
+    public static byte[] base642bytes(final String str, final @IndexOrHigh("#1") int off, final @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int len, final char @MinLen(64) [] code) {
         if (off < 0) {
             throw new IndexOutOfBoundsException("base642bytes: offset < 0, offset is " + off);
         }
@@ -728,9 +756,9 @@ public class Bytes {
             }
 
             char pc = code[64];
-            if (str.charAt(off + len - 2) == pc) {
+            if (str.charAt(off + len - 2) == pc) { // #1
                 size -= 2;
-            } else if (str.charAt(off + len - 1) == pc) {
+            } else if (str.charAt(off + len - 1) == pc) { // #2
                 size--;
             }
         } else {
@@ -742,25 +770,25 @@ public class Bytes {
         }
 
         int r = off, w = 0;
-        byte[] b = new byte[size];
+        byte[] b = new byte[size]; // #3
         for (int i = 0; i < num; i++) {
-            int c1 = indexOf(code, str.charAt(r++)), c2 = indexOf(code, str.charAt(r++));
-            int c3 = indexOf(code, str.charAt(r++)), c4 = indexOf(code, str.charAt(r++));
+            int c1 = indexOf(code, str.charAt(r++)), c2 = indexOf(code, str.charAt(r++)); // #4
+            int c3 = indexOf(code, str.charAt(r++)), c4 = indexOf(code, str.charAt(r++)); // #5
 
-            b[w++] = (byte) ((c1 << 2) | (c2 >> 4));
-            b[w++] = (byte) ((c2 << 4) | (c3 >> 2));
-            b[w++] = (byte) ((c3 << 6) | c4);
+            b[w++] = (byte) ((c1 << 2) | (c2 >> 4)); // #6
+            b[w++] = (byte) ((c2 << 4) | (c3 >> 2)); // #7
+            b[w++] = (byte) ((c3 << 6) | c4); // #8
         }
 
         if (rem == 2) {
-            int c1 = indexOf(code, str.charAt(r++)), c2 = indexOf(code, str.charAt(r++));
+            int c1 = indexOf(code, str.charAt(r++)), c2 = indexOf(code, str.charAt(r++)); // #9
 
-            b[w++] = (byte) ((c1 << 2) | (c2 >> 4));
+            b[w++] = (byte) ((c1 << 2) | (c2 >> 4)); // #10
         } else if (rem == 3) {
-            int c1 = indexOf(code, str.charAt(r++)), c2 = indexOf(code, str.charAt(r++)), c3 = indexOf(code, str.charAt(r++));
+            int c1 = indexOf(code, str.charAt(r++)), c2 = indexOf(code, str.charAt(r++)), c3 = indexOf(code, str.charAt(r++)); // #11
 
-            b[w++] = (byte) ((c1 << 2) | (c2 >> 4));
-            b[w++] = (byte) ((c2 << 4) | (c3 >> 2));
+            b[w++] = (byte) ((c1 << 2) | (c2 >> 4)); // #12
+            b[w++] = (byte) ((c2 << 4) | (c3 >> 2)); // #13
         }
         return b;
     }
@@ -873,6 +901,10 @@ public class Bytes {
         return -1;
     }
 
+    @SuppressWarnings({"index:array.access.unsafe", "index:argument.type.incompatible"}) /*
+    #1. ret has length of 128, the loop stops at position 127
+    #2. It was verified that code has at least 64 characters. The ascii value of a char is at most 127, which is a valid index for ret
+    */
     private static byte[] decodeTable(String code) {
         int hash = code.hashCode();
         byte[] ret = DECODE_TABLE_MAP.get(hash);
@@ -884,17 +916,18 @@ public class Bytes {
             ret = new byte[128];
             for (int i = 0; i < 128; i++) // init table.
             {
-                ret[i] = -1;
+                ret[i] = -1; // #1
             }
             for (int i = 0; i < 64; i++) {
-                ret[code.charAt(i)] = (byte) i;
+                ret[code.charAt(i)] = (byte) i; // #2
             }
             DECODE_TABLE_MAP.put(hash, ret);
         }
         return ret;
     }
 
-    private static byte[] getMD5(InputStream is, int bs) throws IOException {
+    @SuppressWarnings("index:argument.type.incompatible") // The call to read is safe because the loop stops before total exceeds bs
+    private static byte[] getMD5(InputStream is, @NonNegative int bs) throws IOException {
         MessageDigest md = getMessageDigest();
         byte[] buf = new byte[bs];
         while (is.available() > 0) {

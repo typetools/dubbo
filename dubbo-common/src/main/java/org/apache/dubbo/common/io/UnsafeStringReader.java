@@ -19,13 +19,19 @@ package org.apache.dubbo.common.io;
 import java.io.IOException;
 import java.io.Reader;
 
+import org.checkerframework.checker.index.qual.GTENegativeOne;
+import org.checkerframework.checker.index.qual.IndexOrHigh;
+import org.checkerframework.checker.index.qual.LTEqLengthOf;
+import org.checkerframework.checker.index.qual.LTLengthOf;
+import org.checkerframework.checker.index.qual.NonNegative;
+
 /**
  * Thread-unsafe StringReader.
  */
 public class UnsafeStringReader extends Reader {
     private String mString;
 
-    private int mPosition, mLimit, mMark;
+    private @IndexOrHigh("this.mString") int mPosition, mLimit, mMark;
 
     public UnsafeStringReader(String str) {
         mString = str;
@@ -34,7 +40,8 @@ public class UnsafeStringReader extends Reader {
     }
 
     @Override
-    public int read() throws IOException {
+    @SuppressWarnings("index:return.type.incompatible") // A char is always greater than 0
+    public @GTENegativeOne int read() throws IOException {
         ensureOpen();
         if (mPosition >= mLimit) {
             return -1;
@@ -44,7 +51,11 @@ public class UnsafeStringReader extends Reader {
     }
 
     @Override
-    public int read(char[] cs, int off, int len) throws IOException {
+    @SuppressWarnings({"index:argument.type.incompatible", "index:compound.assignment.type.incompatible", "index:return.type.incompatible"}) /*
+    #1 and #2. mPosition + n is at most mLimit, which is a valid index
+    #3. Both mLimit - mPosition and len have been verified, so the returned variable is correct
+    */
+    public @GTENegativeOne @LTEqLengthOf("#1") int read(char[] cs, @IndexOrHigh("#1") int off, @NonNegative @LTLengthOf(value = "#1", offset = "#2 - 1") int len) throws IOException {
         ensureOpen();
         if ((off < 0) || (off > cs.length) || (len < 0) ||
                 ((off + len) > cs.length) || ((off + len) < 0)) {
@@ -60,13 +71,14 @@ public class UnsafeStringReader extends Reader {
         }
 
         int n = Math.min(mLimit - mPosition, len);
-        mString.getChars(mPosition, mPosition + n, cs, off);
-        mPosition += n;
-        return n;
+        mString.getChars(mPosition, mPosition + n, cs, off); // #1
+        mPosition += n; // #2
+        return n; // #3
     }
 
     @Override
-    public long skip(long ns) throws IOException {
+    @SuppressWarnings("index:compound.assignment.type.incompatible") // n is valid because it was previously verified
+    public @NonNegative long skip(@NonNegative long ns) throws IOException {
         ensureOpen();
         if (mPosition >= mLimit) {
             return 0;
@@ -90,7 +102,7 @@ public class UnsafeStringReader extends Reader {
     }
 
     @Override
-    public void mark(int readAheadLimit) throws IOException {
+    public void mark(@NonNegative int readAheadLimit) throws IOException {
         if (readAheadLimit < 0) {
             throw new IllegalArgumentException("Read-ahead limit < 0");
         }
