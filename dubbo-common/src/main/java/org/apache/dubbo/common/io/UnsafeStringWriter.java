@@ -84,7 +84,9 @@ public class UnsafeStringWriter extends Writer {
     }
 
     @Override
-    @SuppressWarnings("index:argument.type.incompatible") // The documentation is inherited from the overridden method.
+    @SuppressWarnings("index:argument.type.incompatible")
+    // The method can throw an IndexOutOfBoundsException when subsequence(int, int) is called, but this is documented in the overridden method:
+    // https://docs.oracle.com/javase/8/docs/api/java/lang/CharSequence.html#subSequence-int-int-
     public Writer append(CharSequence csq, @IndexOrHigh("#1") int start, @IndexOrHigh("#1") int end) {
         CharSequence cs = (csq == null ? "null" : csq);
         write(cs.subSequence(start, end).toString());
